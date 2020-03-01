@@ -1,0 +1,51 @@
+mr-jobhistory-daemon.sh start historyserver
+wget https://raw.githubusercontent.com/Juliop1980/DataSet/master/AviationData.csv
+cd
+hdfs dfs -put ./aviacion/* aviacion/input
+hadoop fs -mkdir -p aviacion/input
+hadoop fs -mkdir -p aviacion/output
+hadoop fs -ls /user/root/aviacion
+aviacion = load '/user/root/aviacion/input/AviationData.csv' using PigStorage(',');
+fecha = foreach aviacion generate $3 as fecha_incidente;
+tokens = foreach fecha generate FLATTEN(TOKENIZE($0));
+grps = group tokens by $0; 
+cnt = foreach grps generate $0, COUNT($1);
+ord = order cnt by $1 desc;
+maxFecha = limit ord 10;
+store maxFecha into '/user/root/aviacion/ouput/mostFatalDates'
+
+http://172.18.0.3:50075/webhdfs/v1/user/root/aviacion/ouput/mostFatalDates/part-r-00000?op=OPEN&namenoderpcaddress=hadoop-master:9000&offset=0
+
+fabricantes = foreach aviacion generate $15, LOWER($15) as fabricante;
+tokens = foreach fabricantes generate FLATTEN(TOKENIZE($1));
+grps = group tokens by $0;
+cnt = foreach grps generate $0, COUNT($1);
+ord = order cnt by $1 desc;
+maxFabricantes = limit ord 10;
+store maxFabricantes into '/user/root/aviacion/ouput/TopFatalCrashesByMaker'
+
+
+http://172.18.0.3:50075/webhdfs/v1/user/root/aviacion/ouput/TopFatalCrashesByMaker/part-r-00000?op=OPEN&namenoderpcaddress=hadoop-master:9000&offset=0
+
+fecha = foreach aviacion generate $3 as fecha_incidente;
+B = foreach fecha generate ToDate($0, 'yyyy-MM-dd') as (dt:datetime);
+C = filter B by DaysBetween(dt,(datetime)ToDate('2000-01-01', 'yyyy-MM-dd')) >=(long)0;
+
+D = foreach C {
+      year = (chararray)GetYear(dt);
+      generate year as myDate;
+};
+
+tokens = foreach D generate FLATTEN(TOKENIZE($0));
+grps = group tokens by $0; 
+cnt = foreach grps generate $0, COUNT($1);
+comparacion = FILTER cnt BY $0=='2000';
+num_comparacion= foreach comparacion generate $1;
+porcentajes = foreach cnt generate $0,((num_comparacion.$0-$1)/(num_comparacion.$0))*100;
+store porcentajes into '/user/root/aviacion/ouput/crashesDecrease'
+http://172.18.0.3:50075/webhdfs/v1/user/root/aviacion/ouput/crashesDecrease/part-m-00000?op=OPEN&namenoderpcaddress=hadoop-master:9000&offset=0
+
+
+
+
+
