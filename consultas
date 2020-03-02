@@ -5,8 +5,8 @@ mkdir aviacion
 cd aviacion
 wget https://raw.githubusercontent.com/Juliop1980/DataSet/master/AviationDataCleaned.csv
 cd
-hdfs dfs -put ./aviacion/* aviacion/input
 hadoop fs -mkdir -p aviacion/input
+hdfs dfs -put ./aviacion/* aviacion/input
 hadoop fs -mkdir -p aviacion/output
 hadoop fs -ls /user/root/aviacion
 pig
