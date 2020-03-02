@@ -1,6 +1,8 @@
 – Preparar datos
 
 mr-jobhistory-daemon.sh start historyserver
+mkdir aviacion
+cd aviacion
 wget https://raw.githubusercontent.com/Juliop1980/DataSet/master/AviationDataCleaned.csv
 cd
 hdfs dfs -put ./aviacion/* aviacion/input
