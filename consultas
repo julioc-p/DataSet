@@ -1,11 +1,11 @@
 mr-jobhistory-daemon.sh start historyserver
-wget https://raw.githubusercontent.com/Juliop1980/DataSet/master/AviationData.csv
+wget https://raw.githubusercontent.com/Juliop1980/DataSet/master/AviationDataCleaned.csv
 cd
 hdfs dfs -put ./aviacion/* aviacion/input
 hadoop fs -mkdir -p aviacion/input
 hadoop fs -mkdir -p aviacion/output
 hadoop fs -ls /user/root/aviacion
-aviacion = load '/user/root/aviacion/input/AviationData.csv' using PigStorage(',');
+aviacion = load '/user/root/aviacion/input/AviationDataCleaned.csv' using PigStorage(',');
 fecha = foreach aviacion generate $3 as fecha_incidente;
 tokens = foreach fecha generate FLATTEN(TOKENIZE($0));
 grps = group tokens by $0; 
@@ -16,7 +16,7 @@ store maxFecha into '/user/root/aviacion/ouput/mostFatalDates'
 
 http://172.18.0.3:50075/webhdfs/v1/user/root/aviacion/ouput/mostFatalDates/part-r-00000?op=OPEN&namenoderpcaddress=hadoop-master:9000&offset=0
 
-fabricantes = foreach aviacion generate $15, LOWER($15) as fabricante;
+fabricantes = foreach aviacion generate $14, LOWER($14) as fabricante;
 tokens = foreach fabricantes generate FLATTEN(TOKENIZE($1));
 grps = group tokens by $0;
 cnt = foreach grps generate $0, COUNT($1);
@@ -41,7 +41,7 @@ grps = group tokens by $0;
 cnt = foreach grps generate $0, COUNT($1);
 comparacion = FILTER cnt BY $0=='2000';
 num_comparacion= foreach comparacion generate $1;
-porcentajes = foreach cnt generate $0,(long) ((long) (num_comparacion.$0-$1)/ (long) (num_comparacion.$0))*100;
+porcentajes = foreach cnt generate $0,((num_comparacion.$0-$1)/(num_comparacion.$0))*100;
 store porcentajes into '/user/root/aviacion/ouput/crashesDecrease'
 http://172.18.0.3:50075/webhdfs/v1/user/root/aviacion/ouput/crashesDecrease/part-m-00000?op=OPEN&namenoderpcaddress=hadoop-master:9000&offset=0
 
