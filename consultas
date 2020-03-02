@@ -21,8 +21,7 @@ ord = order cnt by $1 desc;
 maxFecha = limit ord 10;
 store maxFecha into '/user/root/aviacion/ouput/mostFatalDates'
 
-– http://172.18.0.3:50075/webhdfs/v1/user/root/aviacion/ouput/mostFatalDates/part-r-00000?op=OPEN&namenoderpcaddress=hadoop-master:9000&offset=0
-
+– http://<ip-docker>:50075/webhdfs/v1/user/root/aviacion/ouput/mostFatalDates/part-r-00000?op=OPEN&namenoderpcaddress=hadoop-master:9000&offset=0
 
 – Segundo Query: fabricantes con mas accidentes
 fabricantes = foreach aviacion generate $14, LOWER($14) as fabricante;
@@ -34,7 +33,7 @@ maxFabricantes = limit ord 10;
 store maxFabricantes into '/user/root/aviacion/ouput/TopFatalCrashesByMaker'
 
 
--http://172.18.0.3:50075/webhdfs/v1/user/root/aviacion/ouput/TopFatalCrashesByMaker/part-r-00000?op=OPEN&namenoderpcaddress=hadoop-master:9000&offset=0
+-http://172.19.0.3:50075/webhdfs/v1/user/root/aviacion/ouput/TopFatalCrashesByMaker/part-r-00000?op=OPEN&namenoderpcaddress=hadoop-master:9000&offset=0
 
 
 – Tercer Query: porcentaje de disminucion de accidentes por ano en comparacion con el 2000 a partir del ano 2000
@@ -55,7 +54,7 @@ num_comparacion= foreach comparacion generate $1;
 porcentajes = foreach cnt generate $0,((num_comparacion.$0-$1)/(num_comparacion.$0))*100;
 store porcentajes into '/user/root/aviacion/ouput/crashesDecrease';
 
-–http://172.18.0.3:50075/webhdfs/v1/user/root/aviacion/ouput/crashesDecrease/part-m-00000?op=OPEN&namenoderpcaddress=hadoop-master:9000&offset=0
+–http://172.19.0.3:50075/webhdfs/v1/user/root/aviacion/ouput/crashesDecrease/part-m-00000?op=OPEN&namenoderpcaddress=hadoop-master:9000&offset=0
 
 
 – Cuarto Query: Paises con mas accidentes de categoria fatales
@@ -66,7 +65,7 @@ ord = order cnt by $1 desc;
 maxCountries = limit ord 10;
 store maxCountries into '/user/root/aviacion/ouput/TopFatalCountries';
 
-–http://172.18.0.3:50075/webhdfs/v1/user/root/aviacion/ouput/TopFatalCountries/part-r-00000?op=OPEN&namenoderpcaddress=hadoop-master:9000&offset=0
+–http://172.19.0.3:50075/webhdfs/v1/user/root/aviacion/ouput/TopFatalCountries/part-r-00000?op=OPEN&namenoderpcaddress=hadoop-master:9000&offset=0
 
 
 
