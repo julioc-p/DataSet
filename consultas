@@ -41,9 +41,17 @@ grps = group tokens by $0;
 cnt = foreach grps generate $0, COUNT($1);
 comparacion = FILTER cnt BY $0=='2000';
 num_comparacion= foreach comparacion generate $1;
-porcentajes = foreach cnt generate $0,((num_comparacion.$0-$1)/(num_comparacion.$0))*100;
+porcentajes = foreach cnt generate $0,(long) ((long) (num_comparacion.$0-$1)/ (long) (num_comparacion.$0))*100;
 store porcentajes into '/user/root/aviacion/ouput/crashesDecrease'
 http://172.18.0.3:50075/webhdfs/v1/user/root/aviacion/ouput/crashesDecrease/part-m-00000?op=OPEN&namenoderpcaddress=hadoop-master:9000&offset=0
+
+
+fatal = foreach aviacion generate $6,$24;
+grps = group fatal by $0; 
+cnt = foreach grps generate $0, SUM($1);
+ord = order cnt by $1 desc;
+maxFecha = limit ord 10;
+store maxFecha into '/user/root/aviacion/ouput/mostFatalDates'
 
 
 
