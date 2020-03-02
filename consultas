@@ -46,12 +46,13 @@ store porcentajes into '/user/root/aviacion/ouput/crashesDecrease'
 http://172.18.0.3:50075/webhdfs/v1/user/root/aviacion/ouput/crashesDecrease/part-m-00000?op=OPEN&namenoderpcaddress=hadoop-master:9000&offset=0
 
 
-fatal = foreach aviacion generate $6,$24;
+fatal = foreach aviacion generate $5,$23;
 grps = group fatal by $0; 
-cnt = foreach grps generate $0, SUM($1);
+cnt = FOREACH grps GENERATE group, SUM(fatal.$1);  
 ord = order cnt by $1 desc;
-maxFecha = limit ord 10;
-store maxFecha into '/user/root/aviacion/ouput/mostFatalDates'
+maxCountries = limit ord 10;
+store maxCountries into '/user/root/aviacion/ouput/TopFatalCountries';
+http://172.18.0.3:50075/webhdfs/v1/user/root/aviacion/ouput/TopFatalCountries/part-r-00000?op=OPEN&namenoderpcaddress=hadoop-master:9000&offset=0
 
 
 
